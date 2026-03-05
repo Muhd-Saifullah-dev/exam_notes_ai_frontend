@@ -1,7 +1,10 @@
 import React from 'react'
+import { Navbar } from '../components/Navbar'
 
 export const Home = () => {
   return (
-    <div>Home</div>
+    <div className='min-h-screen overflow-hidden bg-white text-black'>
+      <Navbar/>
+    </div>
   )
 }
