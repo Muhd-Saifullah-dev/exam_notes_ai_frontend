@@ -5,9 +5,13 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../utils/firebase";
 import axios from "axios"
 import { serverUrl } from "../App";
+import { useNavigate } from "react-router-dom";
+import { getCurrentUser } from "../services/api";
+import { setUserData } from "../redux/userSlice";
+import { useDispatch } from "react-redux";
 export const Auth = () => {
-
-
+  const dispatch=useDispatch()
+const navigate=useNavigate()
 
   const handleGoogleAuth=async()=>{
   try {
@@ -19,8 +23,9 @@ export const Auth = () => {
     const idToken= await response.user.getIdToken();
     console.log("idToken",idToken)
       const result=await axios.post(`${serverUrl}/api/v1/auth/google`,{idToken},{withCredentials:true})
-
-      console.log("result",result.data)
+ 
+      console.log("result",result.data.data.user)
+      dispatch(setUserData(result.data.data.user))
   } catch (error) {
     console.log(error)
   }

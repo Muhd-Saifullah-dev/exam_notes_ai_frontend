@@ -1,10 +1,31 @@
-import React from "react";
-import { motion } from "motion/react";
+import React, { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import logo from "../assets/logo.png";
-import { useCurrentUser } from "../hooks/getCurrentUserHook";
+
+import { FaPlus } from "react-icons/fa";
+import axios from "axios";
+import { serverUrl } from "../App";
+
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "../services/api";
 export const Navbar = () => {
-  const { data: user } = useCurrentUser();
+  const {userData}=useSelector((state)=>state.user)
+  const user=userData
+  const [showCredits, setShowCredits] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   console.log(user);
+  const navigate = useNavigate();
+  const dispatch=useDispatch()
+
+  const handleSignout = async () => {
+    try {
+      await logoutUser(dispatch)
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -15 }}
@@ -20,12 +41,104 @@ export const Navbar = () => {
       </div>
       <div className="flex items-center gap-6 relative">
         <div className="relative">
-          <motion.div className="flex items-center gap-1 px-2 y-2 rounded-full bg-white/10 border border-white/20 text-white text-sm shadow-md cursor-pointer">
+          <motion.div
+            onClick={() => {
+              {
+                setShowCredits(!showCredits);
+                setShowProfile(false);
+              }
+            }}
+            whileHover={{ scale: 1.07 }}
+            whileTap={{ scale: 0.97 }}
+            className="flex items-center gap-1 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-sm shadow-md cursor-pointer"
+          >
             <span className="text-xl">💎</span>
-            <span>{user.credits}</span>
+            <span>{user?.credits}</span>
+            <motion.span
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.97 }}
+              className="ml-2 h-5 w-5 flex justify-center items-center rounded-full text-purple-500 bg-white text-xs fon-bold selection-none"
+            >
+              <FaPlus />
+            </motion.span>
           </motion.div>
+
+          <AnimatePresence>
+            {showCredits && (
+              <motion.div
+                className="absolute right-[-50px] mt-4 w-64 rounded-2xl bg-black/90 backdrop-blur-xl border border-white/10 shadow-(--custom-shadow) p-4 text-white"
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 10, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <div className="absolute -top-2 right-18 w-4 h-4 bg-black/90 rotate-45 border-l border-t border-white/10" />
+
+                <h4 className="font-semibold mb-2">Buy Credits</h4>
+                <p className="text-sm text-gray-300 mb-4">
+                  Use credits to generate AI notes, diagrams & PDFs.
+                </p>
+
+                <button
+                  onClick={() => setShowCredits(false)}
+                  className="w-full py-2 rounded-lg bg-linear-to-br from-white to-gray-200 text-black font-semibold hover:opacity-90 cursor-pointer"
+                >
+                  Buy More Credits
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="relative">
+          <motion.div
+            onClick={() => {
+              setShowProfile(!showProfile);
+              setShowCredits(false);
+            }}
+            whileHover={{ scale: 1.07 }}
+            whileTap={{ scale: 0.97 }}
+            className="flex items-center gap-1 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-sm shadow-md cursor-pointer"
+          >
+            <span className="text-lg">
+              {user.name.slice(0, 1).toUpperCase()}
+            </span>
+          </motion.div>
+
+          <AnimatePresence>
+            {showProfile && (
+              <motion.div
+                className="absolute right-0 mt-4 w-52 rounded-2xl bg-black/90 backdrop-blur-xl border border-white/10 shadow-(--custom-shadow) p-4 text-white"
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 10, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <div className="absolute -top-2 right-4 w-4 h-4 bg-black/90 rotate-45 border-l border-t border-white/10" />
+
+                <MenuItem
+                  text="History"
+                  onClick={() => setShowProfile(false)}
+                />
+                <div className="h-px bg-white/10 mx-3 " />
+                <MenuItem text="Sign out" red onClick={handleSignout} />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </motion.div>
   );
 };
+
+function MenuItem({ onClick, text, red }) {
+  return (
+    <div
+      onClick={onClick}
+      className={`w-full text-left px-5 py-3 text-sm transition-colors rounded-lg
+      ${red ? "text-red-400 hover:bg-red-500/10" : "text-gray-200 hover:bg-white/10"}`}
+    >
+      {text}
+    </div>
+  );
+}
