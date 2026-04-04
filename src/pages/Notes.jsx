@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
@@ -9,6 +9,10 @@ function Notes() {
   const navigate = useNavigate();
   const { userData } = useSelector((state) => state.user);
   const user = userData;
+  const [loading,setLoading]=useState(false)
+  const [result,setResult]=useState(null)
+  const [error,setError]=useState("")
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 px-6 py-8">
       <motion.header
@@ -54,8 +58,21 @@ function Notes() {
   
         className="mb-12"
       >
-        <TopicForm />
+        <TopicForm   loading={loading} setLoading={setLoading} setResult={setResult} setError={setError}/>
       </motion.div>
+
+
+    {!result &&  <motion.div 
+      whileHover={{scale:1.02}}
+      className="h-64 rounded-2xl flex flex-col items-center justify-center bg-white/60 backdrop-blur-lg border border-dashed border-gray-gray-300 text-gray-500 shadow-inner"
+      >
+
+        <span className="text-4xl mb-3">🗒️</span>
+        <p className="text-sm">
+          Generated notes will appear here
+        </p>
+
+      </motion.div>}
     </div>
   );
 }
