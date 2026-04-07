@@ -40,7 +40,10 @@ export const Home = () => {
               Generate exam-focused notes,project documentation,flow diagram and
               revision-ready content using AI - faster, cleaner and smarter.
             </motion.p>
-            <motion.button
+           
+          </motion.div>
+
+           <motion.button
             onClick={()=>navigate("/notes")}
               whileHover={{
                
@@ -52,7 +55,6 @@ export const Home = () => {
             >
               Get Started
             </motion.button>
-          </motion.div>
         </div>
 
         <motion.div

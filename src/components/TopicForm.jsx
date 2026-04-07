@@ -1,8 +1,11 @@
-import React from "react";
-import { motion } from "motion/react";
+import React, { useEffect, useState } from "react";
+import { easeOut, motion } from "motion/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { generateNotes } from "../services/api";
+import { useDispatch } from "react-redux";
+import { updateCredits } from "../redux/userSlice";
 
 const schema = z.object({
   topic: z.string().min(3, "Topic is required"),
@@ -13,12 +16,43 @@ const schema = z.object({
   revisionMode: z.boolean(),
 });
 
-function TopicForm({setResult,setLoading,loading,setError}) {
+function TopicForm({ setResult, setLoading, loading, setError }) {
+  const dispatch = useDispatch();
+  const [progress, setProgress] = useState(0);
+  const [progressText, setProgressText] = useState("");
+
+  useEffect(() => {
+    if (!loading) {
+      setProgress(0);
+      setProgressText("");
+      return;
+    }
+
+    let value = 0;
+
+    const interval = setInterval(() => {
+      value += Math.random() * 8;
+      if (value >= 95) {
+        setProgressText("Almost done...");
+        clearInterval(interval);
+      } else if (value > 70) {
+        setProgressText("Finalizing notes...");
+      } else if (value > 40) {
+        setProgressText("Processing content...");
+      } else {
+        setProgressText("Generating notes...");
+      }
+
+      setProgress(Math.floor(value));
+    }, 700);
+  }, [loading]);
+
   const {
     register,
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
@@ -36,7 +70,21 @@ function TopicForm({setResult,setLoading,loading,setError}) {
   const includeDiagram = watch("includeDiagram");
   const includeChart = watch("includeChart");
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
+    setLoading(true);
+    try {
+      const result = await generateNotes(data);
+      console.log("result in in ", result);
+      setLoading(false);
+      reset();
+      setResult(result);
+      if (typeof result.creditleft === "number") {
+        dispatch(updateCredits(result.creditleft));
+      }
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
     console.log("FORM DATA:", data);
   };
 
@@ -98,14 +146,36 @@ function TopicForm({setResult,setLoading,loading,setError}) {
       </div>
 
       <motion.button
-      whileHover={!loading?{scale:1.02}:{}}
-      whileTap={!loading? {scale:0.95}:{}}
-      disabled={loading}
+        whileHover={!loading ? { scale: 1.02 } : {}}
+        whileTap={!loading ? { scale: 0.95 } : {}}
+        disabled={loading}
         type="submit"
-        className={`w-full rounded-xl mt-4  text-black font-semibold py-3 flex items-center justify-center gap-3  transition ${loading?"bg-gray-300 text-gray-600 cursor-not-allowed":"bg-linear-to-br from-white to-gray-200 text-black shadow-[(0_15px_35px_rgba(0,0,0,0.4))]"} `}
+        className={`w-full rounded-xl mt-4  text-black font-semibold py-3 flex items-center justify-center gap-3  transition ${loading ? "bg-gray-300 text-gray-600 cursor-not-allowed" : "bg-linear-to-br from-white to-gray-200 text-black shadow-[(0_15px_35px_rgba(0,0,0,0.4))]"} `}
       >
-      {loading ? "Generating Notes...":"Genearate Notes"}
+        {loading ? "Generating Notes..." : "Genearate Notes"}
       </motion.button>
+
+      {loading && (
+        <div className="mt-4 space-y-2">
+          <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ ease: easeOut, duration: 0.6 }}
+              className="h-full bg-linear-to-r from-green-400 via-emerald-400 to-green-500"
+            ></motion.div>
+          </div>
+
+          <div className="flex justify-between text-xs text-gray-300">
+            <span>{progressText}</span>
+            <span>{progress}%</span>
+          </div>
+          <p className="text-xs text-gray-400 text-center">
+            This may take up to 2-5 minutes. Please don't close or refresh the
+            page
+          </p>
+        </div>
+      )}
     </motion.form>
   );
 }
@@ -116,8 +186,6 @@ function Toggle({ label, checked, onChange }) {
       className="flex items-center justify-between gap-4 cursor-pointer select-none rounded-xl px-4 py-3"
       onClick={onChange}
     >
-    
-
       <motion.div
         animate={{
           backgroundColor: checked
@@ -136,7 +204,7 @@ function Toggle({ label, checked, onChange }) {
           }}
         />
       </motion.div>
-        <span
+      <span
         className={`text-sm transition-colors ${
           checked ? "text-green-300" : "text-gray-300"
         }`}

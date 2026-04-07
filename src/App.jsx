@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import History from "./pages/History";
 import Notes from "./pages/Notes";
 import Pricing from "./pages/Pricing";
-export const serverUrl = "http://localhost:9001";
+export const serverUrl = "http://localhost:9001/api/v1";
 function App() {
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();

@@ -22,7 +22,7 @@ const navigate=useNavigate()
       const email=User.email
     const idToken= await response.user.getIdToken();
     console.log("idToken",idToken)
-      const result=await axios.post(`${serverUrl}/api/v1/auth/google`,{idToken},{withCredentials:true})
+      const result=await axios.post(`${serverUrl}/auth/google`,{idToken},{withCredentials:true})
  
       console.log("result",result.data.data.user)
       dispatch(setUserData(result.data.data.user))

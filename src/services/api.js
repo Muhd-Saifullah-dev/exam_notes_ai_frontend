@@ -4,7 +4,7 @@ import { setUserData } from "../redux/userSlice";
 
 export const getCurrentUser = async (dispatch) => {
   try {
-    const result = await axios.get(`${serverUrl}/api/v1/user`, {
+    const result = await axios.get(`${serverUrl}/user`, {
       withCredentials: true,
     });
     const data = await result.data;
@@ -19,7 +19,7 @@ export const getCurrentUser = async (dispatch) => {
 
 export const logoutUser = async (dispatch) => {
   try {
-    const result = await axios.get(`${serverUrl}/api/v1/auth/logout`, {
+    const result = await axios.get(`${serverUrl}/auth/logout`, {
       withCredentials: true,
     });
     const data = await result.data;
@@ -29,3 +29,18 @@ export const logoutUser = async (dispatch) => {
     console.log(error);
   }
 };
+
+
+export const generateNotes=async(payload)=>{
+try {
+  const result=await axios.post(`${serverUrl}/notes`,payload,{withCredentials:true})
+
+
+  console.log("result",result.data)
+  return result.data.data
+
+} catch (error) {
+  console.log("error",error)
+
+}
+}
