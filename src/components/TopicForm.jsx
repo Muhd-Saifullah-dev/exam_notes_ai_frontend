@@ -77,13 +77,14 @@ function TopicForm({ setResult, setLoading, loading, setError }) {
       console.log("result in in ", result);
       setLoading(false);
       reset();
-      setResult(result);
+      setResult(result.aiResponse);
       if (typeof result.creditleft === "number") {
         dispatch(updateCredits(result.creditleft));
       }
     } catch (error) {
       console.log(error);
       setLoading(false);
+      setError("Failed to fetch notes from server")
     }
     console.log("FORM DATA:", data);
   };
