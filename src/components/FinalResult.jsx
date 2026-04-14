@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 
 import ReactMarkdown from "react-markdown";
+import MermaidSetup from "./MermaidSetup";
+import RechartSetup from "./RechartSetup";
 const markDownComponent = {
   h1: ({ children }) => (
     <h1 className="text-2xl font-bold text-indigo-700 mt-6 mb-4 border-b pb-2">
@@ -97,6 +99,35 @@ function FinalResult({ result }) {
             ))}
           </ul>
         </section>
+      )}
+      {result.diagram?.data && (
+        <section>
+          <SectionHeader icon={"📊"} title={"Diagram"} color={"cyan"} />
+          <MermaidSetup diagram={result.diagram?.data} />
+          <p className="mt-3 text-xs text-gray-500 italic">
+            {" "}
+            ⬇️ If you need this diagram for future reference or revision, you
+            can save it by taking a screenshot
+          </p>
+        </section>
+      )}
+
+      {result.charts?.length > 0 && (
+        <section>
+          <SectionHeader icon={"📈"} title={"Visual Charts"} color={"indigo"} />
+          <RechartSetup charts={result.charts} />
+          <p className="mt-3 text-xs text-gray-500 italic">
+            {" "}
+            ⬇️ If you need this chart for future reference or revision, you can
+            save it by taking a screenshot
+          </p>
+        </section>
+      )}
+
+      {result.charts && result.charts.length === 0 && (
+        <p className="text-sm text-gray-400 italic">
+          📈 chart are not relevant for this topic
+        </p>
       )}
 
       <section>
