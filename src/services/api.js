@@ -9,11 +9,10 @@ export const getCurrentUser = async (dispatch) => {
     });
     const data = await result.data;
     console.log("resulting", data);
-   dispatch(setUserData(data?.data));
-  
+    dispatch(setUserData(data?.data));
   } catch (error) {
     console.log(error);
-    dispatch(setUserData(null))
+    dispatch(setUserData(null));
   }
 };
 
@@ -30,17 +29,36 @@ export const logoutUser = async (dispatch) => {
   }
 };
 
+export const generateNotes = async (payload) => {
+  try {
+    const result = await axios.post(`${serverUrl}/notes`, payload, {
+      withCredentials: true,
+    });
 
-export const generateNotes=async(payload)=>{
-try {
-  const result=await axios.post(`${serverUrl}/notes`,payload,{withCredentials:true})
+    console.log("result", result.data);
+    return result.data.data;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+
+export const downloadPdf=async(result)=>{
+  try {
+    const response=await axios.post(`${serverUrl}/pdf-download`,{result},{responseType:"blob",withCredentials:true})
+    const blob=new Blob([response.data],{
+      type:"application/pdf"
+    })
+
+    const url=window.URL.createObjectURL(blob)
+    const link=document.createElement("a")
+    link.href=url
+    link.download="ExamNotesAI.pdf"
+    link.click()
 
 
-  console.log("result",result.data)
-  return result.data.data
+    window.URL.revokeObjectURL(url)
 
-} catch (error) {
-  console.log("error",error)
-
-}
+  } catch (error) {
+    console.error("error in download pdf",error)
+  }
 }
